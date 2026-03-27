@@ -82,6 +82,7 @@ jobs:
             artifacts/*.snupkg
 
       - name: Publish to NuGet
+        if: ${{ secrets.NUGET_API_KEY != '' }}
         run: |
           dotnet nuget push "artifacts/*.nupkg" --api-key "${{ secrets.NUGET_API_KEY }}" --source "https://api.nuget.org/v3/index.json" --skip-duplicate
           dotnet nuget push "artifacts/*.snupkg" --api-key "${{ secrets.NUGET_API_KEY }}" --source "https://api.nuget.org/v3/index.json" --skip-duplicate
