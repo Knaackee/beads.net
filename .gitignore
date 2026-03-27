@@ -1,0 +1,25 @@
+## .NET
+bin/
+obj/
+*.user
+*.suo
+*.userprefs
+*.nupkg
+*.snupkg
+artifacts/
+dist/
+TestResults/
+BenchmarkDotNet.Artifacts/
+
+## IDE
+.vs/
+.vscode/
+*.DotSettings.user
+
+## Beads runtime
+.beads/
+*.db
+
+## OS
+Thumbs.db
+.DS_Store

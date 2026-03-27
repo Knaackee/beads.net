@@ -1,0 +1,33 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>Beads.Cli</RootNamespace>
+    <PackageId>Beads.Cli</PackageId>
+    <PackAsTool>true</PackAsTool>
+    <ToolCommandName>beads</ToolCommandName>
+    <Title>Beads.Cli</Title>
+    <Description>Local-first issue tracker CLI — .NET port of beads_rust</Description>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageProjectUrl>https://github.com/user/beads.net</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/user/beads.net</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>issue-tracker;sqlite;cli;local-first;dotnet-tool</PackageTags>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\..\README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.CommandLine" Version="2.0.0-beta5.25306.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Beads.Net\Beads.Net.csproj" />
+  </ItemGroup>
+
+</Project>
