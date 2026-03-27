@@ -81,10 +81,10 @@ jobs:
             artifacts/*.nupkg
             artifacts/*.snupkg
 
-      # - name: Publish to NuGet
-      #   run: |
-      #     dotnet nuget push "artifacts/*.nupkg" --api-key "${{ secrets.NUGET_API_KEY }}" --source "https://api.nuget.org/v3/index.json" --skip-duplicate
-      #     dotnet nuget push "artifacts/*.snupkg" --api-key "${{ secrets.NUGET_API_KEY }}" --source "https://api.nuget.org/v3/index.json" --skip-duplicate
+      - name: Publish to NuGet
+        run: |
+          dotnet nuget push "artifacts/*.nupkg" --api-key "${{ secrets.NUGET_API_KEY }}" --source "https://api.nuget.org/v3/index.json" --skip-duplicate
+          dotnet nuget push "artifacts/*.snupkg" --api-key "${{ secrets.NUGET_API_KEY }}" --source "https://api.nuget.org/v3/index.json" --skip-duplicate
 
   build-binaries:
     needs: release
@@ -116,9 +116,38 @@ jobs:
           -p:PublishSingleFile=true
           -p:PublishTrimmed=false
           -p:Version=${{ needs.release.outputs.version }}
-          -o dist/
+          -o dist/${{ matrix.rid }}
+
+      - name: Collect single-file asset
+        shell: pwsh
+        run: |
+          $rid = "${{ matrix.rid }}"
+          $outDir = Join-Path "dist" $rid
+
+          if (-not (Test-Path $outDir)) {
+            Write-Error "Publish output directory not found: $outDir"
+            exit 1
+          }
+
+          if ("${{ matrix.os }}" -eq "windows-latest") {
+            $candidate = Get-ChildItem $outDir -File | Where-Object { $_.Extension -eq ".exe" } | Select-Object -First 1
+            $targetName = "beads-$rid.exe"
+          }
+          else {
+            $candidate = Get-ChildItem $outDir -File | Where-Object { $_.Extension -eq "" -and $_.Name -notlike "*.pdb" } | Select-Object -First 1
+            $targetName = "beads-$rid"
+          }
+
+          if (-not $candidate) {
+            Write-Error "Could not find single executable in $outDir"
+            Get-ChildItem $outDir -File | Select-Object Name, Length
+            exit 1
+          }
+
+          New-Item -ItemType Directory -Path "release-assets" -Force | Out-Null
+          Copy-Item $candidate.FullName (Join-Path "release-assets" $targetName)
 
       - uses: softprops/action-gh-release@v2
         with:
           tag_name: v${{ needs.release.outputs.version }}
-          files: dist/*
+          files: release-assets/*
