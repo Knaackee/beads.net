@@ -110,6 +110,7 @@ jobs:
       - name: Publish self-contained binary
         run: >
           dotnet publish src/Beads.Cli/Beads.Cli.csproj -c Release
+          -f net8.0
           -r ${{ matrix.rid }}
           --self-contained
           -p:PublishSingleFile=true
