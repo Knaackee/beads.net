@@ -45,7 +45,7 @@ public sealed class CliSmokeTests : IDisposable
         var psi = new ProcessStartInfo
         {
             FileName = "dotnet",
-            Arguments = $"run --project \"{cliProject}\" --framework net8.0 --no-build -- --db \"{_dbPath}\" {args}",
+            Arguments = $"run --project \"{cliProject}\" --framework net8.0 -c Release -- --db \"{_dbPath}\" {args}",
             RedirectStandardOutput = true,
             RedirectStandardError = true,
             UseShellExecute = false,
