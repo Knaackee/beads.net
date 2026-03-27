@@ -126,6 +126,7 @@ jobs:
         run: |
           $rid = "${{ matrix.rid }}"
           $outDir = Join-Path "dist" $rid
+          $files = Get-ChildItem $outDir -File
 
           if (-not (Test-Path $outDir)) {
             Write-Error "Publish output directory not found: $outDir"
@@ -133,11 +134,30 @@ jobs:
           }
 
           if ("${{ matrix.os }}" -eq "windows-latest") {
-            $candidate = Get-ChildItem $outDir -File | Where-Object { $_.Extension -eq ".exe" } | Select-Object -First 1
+            $candidate = $files | Where-Object { $_.Extension -eq ".exe" } | Sort-Object Length -Descending | Select-Object -First 1
             $targetName = "beads-$rid.exe"
           }
           else {
-            $candidate = Get-ChildItem $outDir -File | Where-Object { $_.Extension -eq "" -and $_.Name -notlike "*.pdb" } | Select-Object -First 1
+            $candidate = $files |
+              Where-Object {
+                $_.Name -notlike "*.pdb" -and
+                $_.Name -notlike "*.dll" -and
+                $_.Name -notlike "*.json" -and
+                $_.Name -notlike "*.deps.json" -and
+                $_.Name -notlike "*.runtimeconfig.json" -and
+                $_.Name -notlike "*.so" -and
+                $_.Name -notlike "*.dylib" -and
+                $_.Name -notlike "*.a" -and
+                $_.Name -notlike "*.dbg" -and
+                $_.Name -notlike "*.xml"
+              } |
+              Sort-Object Length -Descending |
+              Select-Object -First 1
+
+            if (-not $candidate) {
+              # Fallback: choose the largest file in case platform naming differs.
+              $candidate = $files | Sort-Object Length -Descending | Select-Object -First 1
+            }
             $targetName = "beads-$rid"
           }
 
