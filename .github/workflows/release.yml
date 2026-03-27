@@ -114,7 +114,7 @@ jobs:
           -r ${{ matrix.rid }}
           --self-contained
           -p:PublishSingleFile=true
-          -p:PublishTrimmed=true
+          -p:PublishTrimmed=false
           -p:Version=${{ needs.release.outputs.version }}
           -o dist/
 
