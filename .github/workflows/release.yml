@@ -48,8 +48,11 @@ jobs:
       - run: dotnet restore
       - run: dotnet build Beads.Net.sln -c Release --no-restore
 
-      - name: Run tests
-        run: dotnet test Beads.Net.sln -c Release --no-build --logger "trx" --results-directory TestResults
+      - name: Run library tests
+        run: dotnet test tests/Beads.Net.Tests -c Release --no-build --logger "trx;LogFileName=lib.trx" --results-directory TestResults
+
+      - name: Run CLI smoke tests
+        run: dotnet test tests/Beads.Cli.Tests -c Release --no-build --framework net8.0 --logger "trx;LogFileName=cli.trx" --results-directory TestResults
 
       - name: Pack Beads.Net (Library)
         run: >

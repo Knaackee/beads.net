@@ -24,12 +24,23 @@ public sealed class CliSmokeTests : IDisposable
         catch { /* locked files on Windows */ }
     }
 
+    private static string FindRepoRoot()
+    {
+        var dir = new DirectoryInfo(AppContext.BaseDirectory);
+        while (dir is not null)
+        {
+            if (File.Exists(Path.Combine(dir.FullName, "Beads.Net.sln")))
+                return dir.FullName;
+            dir = dir.Parent;
+        }
+
+        throw new InvalidOperationException($"Could not locate repository root from {AppContext.BaseDirectory}");
+    }
+
     private (int ExitCode, string Output, string Error) RunCli(string args)
     {
-        // Find the CLI executable from the build output
-        var cliProject = Path.GetFullPath(
-            Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "..",
-                "src", "Beads.Cli"));
+        var repoRoot = FindRepoRoot();
+        var cliProject = Path.Combine(repoRoot, "src", "Beads.Cli");
 
         var psi = new ProcessStartInfo
         {
@@ -78,16 +89,16 @@ public sealed class CliSmokeTests : IDisposable
     {
         // init first, then version
         RunCli("init");
-        var (exit, output, _) = RunCli("version");
-        Assert.Equal(0, exit);
+        var (exit, output, error) = RunCli("version");
+        Assert.True(exit == 0, $"version failed: {error}");
         Assert.NotEmpty(output.Trim());
     }
 
     [Fact]
     public void Init_CreatesDatabase()
     {
-        var (exit, _, _) = RunCli("init");
-        Assert.Equal(0, exit);
+        var (exit, _, error) = RunCli("init");
+        Assert.True(exit == 0, $"init failed: {error}");
         Assert.True(File.Exists(_dbPath));
     }
 
@@ -95,8 +106,8 @@ public sealed class CliSmokeTests : IDisposable
     public void Create_ReturnsIssueId()
     {
         RunCli("init");
-        var (exit, output, _) = RunCli("create \"Test issue\" --type task --priority 1");
-        Assert.Equal(0, exit);
+        var (exit, output, error) = RunCli("create \"Test issue\" --type task --priority 1");
+        Assert.True(exit == 0, $"create failed: {error}");
         Assert.Contains("bd-", output);
     }
 
@@ -104,8 +115,8 @@ public sealed class CliSmokeTests : IDisposable
     public void Quick_ReturnsId()
     {
         RunCli("init");
-        var (exit, output, _) = RunCli("q \"Quick task\"");
-        Assert.Equal(0, exit);
+        var (exit, output, error) = RunCli("q \"Quick task\"");
+        Assert.True(exit == 0, $"q failed: {error}");
         Assert.Contains("bd-", output);
     }
 
@@ -113,8 +124,8 @@ public sealed class CliSmokeTests : IDisposable
     public void List_EmptyDb_ReturnsZero()
     {
         RunCli("init");
-        var (exit, _, _) = RunCli("list");
-        Assert.Equal(0, exit);
+        var (exit, _, error) = RunCli("list");
+        Assert.True(exit == 0, $"list failed: {error}");
     }
 
     [Fact]
@@ -122,8 +133,8 @@ public sealed class CliSmokeTests : IDisposable
     {
         RunCli("init");
         RunCli("create \"JSON test\"");
-        var (exit, output, _) = RunCli("list --json");
-        Assert.Equal(0, exit);
+        var (exit, output, error) = RunCli("list --json");
+        Assert.True(exit == 0, $"list --json failed: {error}");
         // Verify it's valid JSON
         var doc = JsonDocument.Parse(output);
         Assert.NotNull(doc);
@@ -136,8 +147,8 @@ public sealed class CliSmokeTests : IDisposable
         var (_, createOut, _) = RunCli("create \"Show test\"");
         var id = ExtractId(createOut);
 
-        var (exit, output, _) = RunCli($"show {id}");
-        Assert.Equal(0, exit);
+        var (exit, output, error) = RunCli($"show {id}");
+        Assert.True(exit == 0, $"show failed: {error}");
         Assert.Contains("Show test", output);
     }
 
@@ -162,8 +173,8 @@ public sealed class CliSmokeTests : IDisposable
     public void Where_ReturnsDbPath()
     {
         RunCli("init");
-        var (exit, output, _) = RunCli("where");
-        Assert.Equal(0, exit);
+        var (exit, output, error) = RunCli("where");
+        Assert.True(exit == 0, $"where failed: {error}");
         Assert.Contains("beads.db", output, StringComparison.OrdinalIgnoreCase);
     }
 
