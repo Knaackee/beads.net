@@ -4,7 +4,7 @@ namespace Beads.Net.Schema;
 
 public sealed class SchemaManager
 {
-    private const int CurrentSchemaVersion = 1;
+    private const int CurrentSchemaVersion = 2;
     private readonly Db _db;
 
     internal SchemaManager(Db db) => _db = db;
@@ -14,8 +14,23 @@ public sealed class SchemaManager
         using var tx = _db.BeginTransaction();
         CreateTables();
         CreateIndexes();
+        MigrateIfNeeded();
         SetMetadata("schema_version", CurrentSchemaVersion.ToString());
         tx.Commit();
+    }
+
+    private void MigrateIfNeeded()
+    {
+        var version = GetSchemaVersion();
+        if (version < 2)
+        {
+            // Add metadata column to projects and issues for existing databases.
+            // New databases already get the column via CREATE TABLE IF NOT EXISTS.
+            // ALTER TABLE ADD COLUMN is a no-op if the column already exists in SQLite
+            // when wrapped with a try/catch — but we guard via schema version instead.
+            try { _db.Execute(_db.Sql("ALTER TABLE {p}projects ADD COLUMN metadata TEXT DEFAULT '{}'")); } catch { /* column already exists */ }
+            try { _db.Execute(_db.Sql("ALTER TABLE {p}issues ADD COLUMN metadata TEXT DEFAULT '{}'")); } catch { /* column already exists */ }
+        }
     }
 
     private void CreateTables()
@@ -60,7 +75,8 @@ public sealed class SchemaManager
                 is_template         INTEGER NOT NULL DEFAULT 0,
                 project_id          TEXT,
                 column_id           TEXT,
-                position            INTEGER NOT NULL DEFAULT 0
+                position            INTEGER NOT NULL DEFAULT 0,
+                metadata            TEXT DEFAULT '{}'
             )
             """));
 
@@ -168,6 +184,7 @@ public sealed class SchemaManager
                 description TEXT DEFAULT '',
                 status      TEXT NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'archived')),
                 color       TEXT,
+                metadata    TEXT DEFAULT '{}',
                 created_at  DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
                 updated_at  DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
             )

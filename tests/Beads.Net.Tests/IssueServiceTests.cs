@@ -51,6 +51,28 @@ public sealed class IssueServiceTests : IDisposable
     }
 
     [Fact]
+    public void CreateIssueOptions_Metadata_CanBeSet()
+    {
+        var options = new CreateIssueOptions
+        {
+            Metadata = "{\"source\":\"api\"}",
+        };
+
+        Assert.Equal("{\"source\":\"api\"}", options.Metadata);
+    }
+
+    [Fact]
+    public void UpdateIssueOptions_Metadata_CanBeSet()
+    {
+        var options = new UpdateIssueOptions
+        {
+            Metadata = "{\"sprint\":\"42\"}",
+        };
+
+        Assert.Equal("{\"sprint\":\"42\"}", options.Metadata);
+    }
+
+    [Fact]
     public void Create_WithLabels()
     {
         var issue = _client.Issues.Create("Labeled", new CreateIssueOptions

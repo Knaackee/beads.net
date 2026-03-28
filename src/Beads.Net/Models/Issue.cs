@@ -69,6 +69,7 @@ public sealed record Issue
     public string? ProjectId { get; set; }
     public string? ColumnId { get; set; }
     public int Position { get; set; }
+    public string Metadata { get; set; } = "{}";
 
     /// <summary>True if this issue has been soft-deleted.</summary>
     public bool IsTombstone => Status == "tombstone";

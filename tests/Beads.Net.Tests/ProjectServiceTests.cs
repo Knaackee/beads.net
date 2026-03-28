@@ -26,6 +26,28 @@ public sealed class ProjectServiceTests : IDisposable
     }
 
     [Fact]
+    public void Create_DefaultMetadata_IsJsonObject()
+    {
+        var project = _client.Projects.Create("Metadata default");
+        Assert.Equal("{}", project.Metadata);
+
+        var loaded = _client.Projects.Get(project.Id);
+        Assert.NotNull(loaded);
+        Assert.Equal("{}", loaded!.Metadata);
+    }
+
+    [Fact]
+    public void Create_WithMetadata_Persists()
+    {
+        var project = _client.Projects.Create("Metadata set", metadata: "{\"tier\":\"gold\"}");
+        Assert.Equal("{\"tier\":\"gold\"}", project.Metadata);
+
+        var loaded = _client.Projects.Get(project.Id);
+        Assert.NotNull(loaded);
+        Assert.Equal("{\"tier\":\"gold\"}", loaded!.Metadata);
+    }
+
+    [Fact]
     public void Get_ByName_ReturnsProject()
     {
         var created = _client.Projects.Create("FindMe");
@@ -90,6 +112,18 @@ public sealed class ProjectServiceTests : IDisposable
         var updated = _client.Projects.Update(project.Id, name: "Updated", description: "New desc");
         Assert.Equal("Updated", updated.Name);
         Assert.Equal("New desc", updated.Description);
+    }
+
+    [Fact]
+    public void Update_Metadata_ChangesField()
+    {
+        var project = _client.Projects.Create("Original metadata");
+        var updated = _client.Projects.Update(project.Id, metadata: "{\"area\":\"infra\"}");
+        Assert.Equal("{\"area\":\"infra\"}", updated.Metadata);
+
+        var loaded = _client.Projects.Get(project.Id);
+        Assert.NotNull(loaded);
+        Assert.Equal("{\"area\":\"infra\"}", loaded!.Metadata);
     }
 
     [Fact]

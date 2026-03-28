@@ -21,6 +21,7 @@ public sealed class CreateIssueOptions
     public bool Pinned { get; set; }
     public bool IsTemplate { get; set; }
     public bool DryRun { get; set; }
+    public string? Metadata { get; set; }
     public List<string>? Labels { get; set; }
     public List<string>? DependsOn { get; set; }
 }
@@ -46,6 +47,7 @@ public sealed class UpdateIssueOptions
     public bool? IsTemplate { get; set; }
     public string? ProjectId { get; set; }
     public string? ColumnId { get; set; }
+    public string? Metadata { get; set; }
     /// <summary>If true, atomically assign + set in_progress.</summary>
     public bool Claim { get; set; }
     public List<string>? AddLabels { get; set; }

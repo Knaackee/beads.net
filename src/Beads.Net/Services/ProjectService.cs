@@ -11,7 +11,7 @@ public sealed class ProjectService
 
     internal ProjectService(Db db) => _db = db;
 
-    public Project Create(string name, string? description = null, string? color = null)
+    public Project Create(string name, string? description = null, string? color = null, string? metadata = null)
     {
         if (string.IsNullOrWhiteSpace(name))
             throw new BeadsValidationException("Project name must not be empty.");
@@ -23,13 +23,14 @@ public sealed class ProjectService
 
         var now = DateTime.UtcNow;
         _db.Execute(
-            $"INSERT INTO {_db.T("projects")} (id, name, description, status, color, created_at, updated_at) VALUES (@id, @name, @desc, 'active', @color, @now, @now)",
+            $"INSERT INTO {_db.T("projects")} (id, name, description, status, color, metadata, created_at, updated_at) VALUES (@id, @name, @desc, 'active', @color, @meta, @now, @now)",
             cmd =>
             {
                 cmd.Parameters.AddWithValue("@id", id);
                 cmd.Parameters.AddWithValue("@name", name);
                 cmd.Parameters.AddWithValue("@desc", description ?? "");
                 cmd.Parameters.AddWithValue("@color", (object?)color ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@meta", metadata ?? "{}");
                 cmd.Parameters.AddWithValue("@now", now.ToString("o"));
             });
 
@@ -40,6 +41,7 @@ public sealed class ProjectService
             Description = description ?? "",
             Status = "active",
             Color = color,
+            Metadata = metadata ?? "{}",
             CreatedAt = now,
             UpdatedAt = now,
         };
@@ -61,7 +63,7 @@ public sealed class ProjectService
         return _db.Query($"SELECT * FROM {t}{where} ORDER BY name", null, ReadProject);
     }
 
-    public Project Update(string id, string? name = null, string? description = null)
+    public Project Update(string id, string? name = null, string? description = null, string? metadata = null)
     {
         var existing = Get(id) ?? throw new BeadsNotFoundException($"Project not found: {id}");
         var sets = new List<string> { "updated_at = @now" };
@@ -82,6 +84,12 @@ public sealed class ProjectService
             sets.Add("description = @desc");
             var prev = setter;
             setter = cmd => { prev(cmd); cmd.Parameters.AddWithValue("@desc", description); };
+        }
+        if (metadata != null)
+        {
+            sets.Add("metadata = @meta");
+            var prev = setter;
+            setter = cmd => { prev(cmd); cmd.Parameters.AddWithValue("@meta", metadata); };
         }
 
         _db.Execute($"UPDATE {_db.T("projects")} SET {string.Join(", ", sets)} WHERE id = @id", setter);
@@ -124,6 +132,7 @@ public sealed class ProjectService
             Description = r.GetStringOrEmpty("description"),
             Status = r.GetStringOrEmpty("status"),
             Color = r.GetNullableString("color"),
+            Metadata = r.GetNullableString("metadata") ?? "{}",
             CreatedAt = r.GetDateTime(r.GetOrdinal("created_at")),
             UpdatedAt = r.GetDateTime(r.GetOrdinal("updated_at")),
         };
