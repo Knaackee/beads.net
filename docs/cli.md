@@ -33,6 +33,7 @@ beads init --db path/to/beads.db      # Custom path
 ```bash
 beads create "Title"
 beads create "Fix login" --type bug --priority 0 --assignee alice
+beads create "Fix login" --metadata '{"source":"cli"}'
 beads create "Epic task" --type epic --desc "Description" --design "Design notes"
 beads create "Child" --parent bd-epic1 --project proj-abc
 beads create "Labeled" --label backend --label urgent
@@ -84,6 +85,7 @@ beads orphans                     # Subtasks with missing parent
 beads update bd-abc --title "New title"
 beads update bd-abc --priority 0 --assignee bob
 beads update bd-abc --type bug
+beads update bd-abc --metadata '{"sprint":"42"}'
 beads update bd-abc --add-label urgent --remove-label wontfix
 beads update bd-abc --claim       # Assign to self + set in_progress
 ```
@@ -210,10 +212,11 @@ beads history restore <backup>    # Restore from backup
 ### Projects
 
 ```bash
-beads project create "My Project" --desc "..." --color "#FF0000"
+beads project create "My Project" --desc "..." --color "#FF0000" --metadata '{"team":"core"}'
 beads project list
 beads project list --include-archived
 beads project show proj-abc
+beads project update proj-abc --name "Renamed" --metadata '{"team":"platform"}'
 beads project archive proj-abc
 beads project delete proj-abc
 ```

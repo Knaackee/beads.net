@@ -76,6 +76,23 @@ public sealed class CliSmokeTests : IDisposable
         throw new InvalidOperationException($"No bd- ID found in: {createOutput}");
     }
 
+    private static string ExtractProjectId(string createOutput)
+    {
+        // Output format: "Created project prj-xxxxx: name"
+        foreach (var line in createOutput.Split('\n'))
+        {
+            var trimmed = line.Trim();
+            var idx = trimmed.IndexOf("prj-", StringComparison.Ordinal);
+            if (idx >= 0)
+            {
+                var end = trimmed.IndexOfAny([':', ' '], idx + 4);
+                return end > idx ? trimmed[idx..end] : trimmed[idx..];
+            }
+        }
+
+        throw new InvalidOperationException($"No prj- ID found in: {createOutput}");
+    }
+
     [Fact]
     public void Help_ReturnsZeroAndContent()
     {
@@ -150,6 +167,42 @@ public sealed class CliSmokeTests : IDisposable
         var (exit, output, error) = RunCli($"show {id}");
         Assert.True(exit == 0, $"show failed: {error}");
         Assert.Contains("Show test", output);
+    }
+
+    [Fact]
+    public void CreateAndShow_IssueMetadata_WorksInJson()
+    {
+        RunCli("init");
+        var (_, createOut, _) = RunCli("create \"Meta issue\" --metadata \"{\\\"source\\\":\\\"cli\\\"}\"");
+        var id = ExtractId(createOut);
+
+        var (exit, output, error) = RunCli($"show {id} --json");
+        Assert.True(exit == 0, $"show --json failed: {error}");
+
+        using var doc = JsonDocument.Parse(output);
+        var root = doc.RootElement.ValueKind == JsonValueKind.Array
+            ? doc.RootElement[0]
+            : doc.RootElement;
+
+        Assert.Equal("{\"source\":\"cli\"}", root.GetProperty("metadata").GetString());
+    }
+
+    [Fact]
+    public void Project_CreateUpdate_Metadata_Works()
+    {
+        RunCli("init");
+
+        var (createExit, createOut, createErr) = RunCli("project create \"Meta project\" --metadata \"{\\\"team\\\":\\\"core\\\"}\"");
+        Assert.True(createExit == 0, $"project create failed: {createErr}");
+        var id = ExtractProjectId(createOut);
+
+        var (updateExit, _, updateErr) = RunCli($"project update {id} --metadata \"{{\\\"team\\\":\\\"platform\\\"}}\"");
+        Assert.True(updateExit == 0, $"project update failed: {updateErr}");
+
+        var (showExit, output, showErr) = RunCli($"project show {id} --json");
+        Assert.True(showExit == 0, $"project show --json failed: {showErr}");
+        using var doc = JsonDocument.Parse(output);
+        Assert.Equal("{\"team\":\"platform\"}", doc.RootElement.GetProperty("metadata").GetString());
     }
 
     [Fact]

@@ -19,10 +19,11 @@ internal static class ProjectCommands
         var nameArg = new Argument<string>("name") { Description = "Project name" };
         var descOpt = new Option<string?>("--description") { Description = "Description" };
         var colorOpt = new Option<string?>("--color") { Description = "Color hex code" };
-        createCmd.Add(nameArg); createCmd.Add(descOpt); createCmd.Add(colorOpt);
+        var metadataOpt = new Option<string?>("--metadata") { Description = "Metadata JSON object" };
+        createCmd.Add(nameArg); createCmd.Add(descOpt); createCmd.Add(colorOpt); createCmd.Add(metadataOpt);
         createCmd.SetAction(pr => Cli.Run(pr, client =>
         {
-                        var p = client.Projects.Create(pr.GetRequiredValue(nameArg), pr.GetValue(descOpt), pr.GetValue(colorOpt));
+                        var p = client.Projects.Create(pr.GetRequiredValue(nameArg), pr.GetValue(descOpt), pr.GetValue(colorOpt), pr.GetValue(metadataOpt));
             if (Cli.IsJson(pr)) Cli.WriteJson(p);
             else Console.WriteLine($"Created project {p.Id}: {p.Name}");
         }));
@@ -53,8 +54,26 @@ internal static class ProjectCommands
                 Console.WriteLine($"Name:   {p.Name}");
                 Console.WriteLine($"Status: {p.Status}");
                 if (!string.IsNullOrEmpty(p.Description)) Console.WriteLine($"Desc:   {p.Description}");
+                if (!string.IsNullOrWhiteSpace(p.Color)) Console.WriteLine($"Color:  {p.Color}");
+                if (!string.IsNullOrWhiteSpace(p.Metadata) && p.Metadata != "{}") Console.WriteLine($"Meta:   {p.Metadata}");
                 Console.WriteLine($"Created:{p.CreatedAt:yyyy-MM-dd HH:mm}");
             }
+        }));
+
+        var updateCmd = new Command("update", "Update a project");
+        var updateArg = new Argument<string>("id") { Description = "Project ID or name" };
+        var updateNameOpt = new Option<string?>("--name") { Description = "New name" };
+        var updateDescOpt = new Option<string?>("--description") { Description = "New description" };
+        var updateMetadataOpt = new Option<string?>("--metadata") { Description = "Metadata JSON object" };
+        updateCmd.Add(updateArg);
+        updateCmd.Add(updateNameOpt);
+        updateCmd.Add(updateDescOpt);
+        updateCmd.Add(updateMetadataOpt);
+        updateCmd.SetAction(pr => Cli.Run(pr, client =>
+        {
+            var p = client.Projects.Update(pr.GetRequiredValue(updateArg), pr.GetValue(updateNameOpt), pr.GetValue(updateDescOpt), pr.GetValue(updateMetadataOpt));
+            if (Cli.IsJson(pr)) Cli.WriteJson(p);
+            else Console.WriteLine($"Updated project {p.Id}: {p.Name}");
         }));
 
         var archiveCmd = new Command("archive", "Archive a project");
@@ -78,6 +97,7 @@ internal static class ProjectCommands
         proj.Add(createCmd);
         proj.Add(listCmd);
         proj.Add(showCmd);
+        proj.Add(updateCmd);
         proj.Add(archiveCmd);
         proj.Add(deleteCmd);
         root.Add(proj);

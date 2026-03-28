@@ -24,6 +24,7 @@ beads init
 
 # Create issues
 beads create "Implement authentication" --type task --priority 0
+beads create "Track rollout" --metadata '{"owner":"platform"}'
 beads q "Fix login bug"
 
 # List & filter
@@ -50,7 +51,10 @@ var issue = client.Issues.Create("Fix login page", new() {
     Priority = 0,
     Assignee = "alice",
     Labels = ["frontend", "urgent"],
+    Metadata = "{\"owner\":\"platform\"}",
 });
+
+var project = client.Projects.Create("Portal", metadata: "{\"domain\":\"customer\"}");
 
 client.Dependencies.Add(issue.Id, otherIssue.Id);
 client.Comments.Add(issue.Id, "Investigating root cause");
@@ -67,6 +71,7 @@ var stats = client.Stats.GetStats();
 - **Labels** — attach, remove, rename across all issues
 - **Epics** — parent-child hierarchy with progress tracking
 - **Projects & Boards** — Kanban-style project management with WIP limits
+- **Metadata fields** — attach custom JSON metadata on issues and projects
 - **Saved queries** — persist common filters and rerun them
 - **Sync** — JSONL flush/import for backup and collaboration
 - **Doctor** — health checks, orphan detection, schema validation

@@ -81,6 +81,8 @@ internal static class Cli
         Console.WriteLine($"Created:     {issue.CreatedAt:yyyy-MM-dd HH:mm}");
         Console.WriteLine($"Updated:     {issue.UpdatedAt:yyyy-MM-dd HH:mm}");
         if (issue.Labels?.Count > 0) Console.WriteLine($"Labels:      {string.Join(", ", issue.Labels)}");
+        if (!string.IsNullOrWhiteSpace(issue.Metadata) && issue.Metadata != "{}")
+            Console.WriteLine($"Metadata:    {issue.Metadata}");
     }
 
     internal static int Run(ParseResult pr, Action<BeadsClient> action)

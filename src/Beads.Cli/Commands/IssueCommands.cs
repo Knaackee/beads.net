@@ -69,13 +69,14 @@ internal static class IssueCommands
         var ephemeralOpt = new Option<bool>("--ephemeral") { Description = "Ephemeral issue" };
         var pinnedOpt = new Option<bool>("--pinned") { Description = "Pin issue" };
         var templateOpt = new Option<bool>("--template") { Description = "Mark as template" };
+        var metadataOpt = new Option<string?>("--metadata") { Description = "Metadata JSON object" };
         var dryRunOpt = new Option<bool>("--dry-run") { Description = "Dry run" };
         var silentOpt = new Option<bool>("--silent") { Description = "Only output ID" };
 
         cmd.Add(titleArg);
         foreach (var o in new Option[] { typeOpt, prioOpt, descOpt, designOpt, acOpt, notesOpt,
             assigneeOpt, ownerOpt, estimateOpt, dueOpt, deferOpt, extRefOpt, labelOpt, depsOpt,
-            parentOpt, projectOpt, ephemeralOpt, pinnedOpt, templateOpt, dryRunOpt, silentOpt })
+            parentOpt, projectOpt, ephemeralOpt, pinnedOpt, templateOpt, metadataOpt, dryRunOpt, silentOpt })
             cmd.Add(o);
 
         cmd.SetAction(pr => Cli.Run(pr, client =>
@@ -101,6 +102,7 @@ internal static class IssueCommands
                 Ephemeral = pr.GetValue(ephemeralOpt),
                 Pinned = pr.GetValue(pinnedOpt),
                 IsTemplate = pr.GetValue(templateOpt),
+                Metadata = pr.GetValue(metadataOpt),
                 DryRun = pr.GetValue(dryRunOpt),
             };
             var issue = client.Issues.Create(pr.GetRequiredValue(titleArg), opts);
@@ -184,6 +186,7 @@ internal static class IssueCommands
         var extRefOpt = new Option<string?>("--external-ref") { Description = "External reference" };
         var projectOpt = new Option<string?>("--project") { Description = "Project ID" };
         var columnOpt = new Option<string?>("--column") { Description = "Column ID" };
+        var metadataOpt = new Option<string?>("--metadata") { Description = "Metadata JSON object" };
         var claimOpt = new Option<bool>("--claim") { Description = "Claim (assign to self)" };
         var addLabelOpt = new Option<string[]>("--add-label") { Description = "Add labels" };
         var removeLabelOpt = new Option<string[]>("--remove-label") { Description = "Remove labels" };
@@ -191,7 +194,7 @@ internal static class IssueCommands
         cmd.Add(idsArg);
         foreach (var o in new Option[] { titleOpt, descOpt, designOpt, acOpt, notesOpt, statusOpt,
             prioOpt, typeOpt, assigneeOpt, ownerOpt, estimateOpt, dueOpt, deferOpt, extRefOpt,
-            projectOpt, columnOpt, claimOpt, addLabelOpt, removeLabelOpt })
+            projectOpt, columnOpt, metadataOpt, claimOpt, addLabelOpt, removeLabelOpt })
             cmd.Add(o);
 
         cmd.SetAction(pr => Cli.Run(pr, client =>
@@ -214,6 +217,7 @@ internal static class IssueCommands
                 ExternalRef = pr.GetValue(extRefOpt),
                 ProjectId = pr.GetValue(projectOpt),
                 ColumnId = pr.GetValue(columnOpt),
+                Metadata = pr.GetValue(metadataOpt),
                 Claim = pr.GetValue(claimOpt),
                 AddLabels = pr.GetValue(addLabelOpt)?.ToList(),
                 RemoveLabels = pr.GetValue(removeLabelOpt)?.ToList(),

@@ -105,6 +105,7 @@ public sealed record Issue
                Ephemeral == other.Ephemeral &&
                Pinned == other.Pinned &&
                IsTemplate == other.IsTemplate &&
+               Metadata == other.Metadata &&
                LabelsEqual(Labels, other.Labels);
     }
 

@@ -79,6 +79,7 @@ var issue = client.Issues.Create("Title", new CreateIssueOptions {
     DependsOn = ["bd-other"],
     ParentId = "bd-epic1",
     ProjectId = "proj-abc",
+    Metadata = "{\"source\":\"api\"}",
 });
 
 // Quick capture — returns only the ID
@@ -137,6 +138,7 @@ var updated = client.Issues.Update("bd-abc", new UpdateIssueOptions {
     Assignee = "bob",
     AddLabels = ["new-label"],
     RemoveLabels = ["old-label"],
+    Metadata = "{\"sprint\":\"42\"}",
     Claim = true,  // atomically assign + set in_progress
 });
 ```
@@ -218,10 +220,10 @@ client.Sync.HistoryRestore("backup-name");
 ## ProjectService
 
 ```csharp
-Project project = client.Projects.Create("My Project", description: "...", color: "#FF0000");
+Project project = client.Projects.Create("My Project", description: "...", color: "#FF0000", metadata: "{\"team\":\"core\"}");
 Project? found = client.Projects.Get("My Project"); // by name or ID
 List<Project> all = client.Projects.List(includeArchived: true);
-client.Projects.Update(project.Id, name: "Renamed");
+client.Projects.Update(project.Id, name: "Renamed", metadata: "{\"team\":\"platform\"}");
 client.Projects.Archive(project.Id);
 client.Projects.Delete(project.Id); // fails if has active issues
 ```
@@ -264,10 +266,10 @@ All exceptions derive from `BeadsException`:
 
 Key types:
 
-- **`Issue`** — sealed record with all fields (Id, Title, Status, IssueType, Priority, etc.)
+- **`Issue`** — sealed record with all fields (Id, Title, Status, IssueType, Priority, Metadata, etc.)
 - **`Dependency`** — IssueId, DependsOnId, DepType
 - **`Comment`** — IssueId, Body, Author, CreatedAt
 - **`Event`** — audit trail entry
-- **`Project`** — Id, Name, Description, Status, Color
+- **`Project`** — Id, Name, Description, Status, Color, Metadata
 - **`Board`, `Column`** — Kanban board structure
 - **`EpicStatus`** — progress tracking (TotalChildren, ClosedChildren, ProgressPercent)

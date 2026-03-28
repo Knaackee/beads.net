@@ -43,6 +43,7 @@ public sealed class IssueService
                 Status = options.Status ?? "open",
                 Priority = options.Priority ?? _config.Defaults.Priority,
                 IssueType = options.IssueType ?? _config.Defaults.Type,
+                Metadata = options.Metadata ?? "{}",
                 CreatedAt = now,
                 UpdatedAt = now,
             };
@@ -72,6 +73,7 @@ public sealed class IssueService
             Pinned = options.Pinned,
             IsTemplate = options.IsTemplate,
             ProjectId = options.ProjectId,
+            Metadata = options.Metadata ?? "{}",
         };
         issue = issue with { ContentHash = ContentHash.Compute(issue) };
 
@@ -188,6 +190,7 @@ public sealed class IssueService
         if (options.IsTemplate.HasValue) Set("is_template", options.IsTemplate.Value ? 1 : 0, "tmpl");
         if (options.ProjectId != null) Set("project_id", options.ProjectId == "" ? DBNull.Value : options.ProjectId, "proj");
         if (options.ColumnId != null) Set("column_id", options.ColumnId == "" ? DBNull.Value : options.ColumnId, "col");
+        if (options.Metadata != null) Set("metadata", options.Metadata, "meta");
 
         if (options.Status != null)
         {
@@ -591,12 +594,12 @@ public sealed class IssueService
                 id, content_hash, title, description, design, acceptance_criteria, notes,
                 status, priority, issue_type, assignee, owner, estimated_minutes,
                 created_at, created_by, updated_at, due_at, defer_until,
-                external_ref, source_repo, ephemeral, pinned, is_template, project_id, column_id, position
+                external_ref, source_repo, ephemeral, pinned, is_template, project_id, column_id, position, metadata
             ) VALUES (
                 @id, @hash, @title, @desc, @design, @ac, @notes,
                 @status, @pri, @type, @assignee, @owner, @est,
                 @cat, @cby, @uat, @due, @defer,
-                @eref, @repo, @eph, @pin, @tmpl, @proj, @col, @pos
+                @eref, @repo, @eph, @pin, @tmpl, @proj, @col, @pos, @meta
             )
             """, cmd =>
         {
@@ -626,6 +629,7 @@ public sealed class IssueService
             cmd.Parameters.AddWithValue("@proj", (object?)issue.ProjectId ?? DBNull.Value);
             cmd.Parameters.AddWithValue("@col", (object?)issue.ColumnId ?? DBNull.Value);
             cmd.Parameters.AddWithValue("@pos", issue.Position);
+            cmd.Parameters.AddWithValue("@meta", issue.Metadata ?? "{}");
         });
     }
 
@@ -843,6 +847,7 @@ public sealed class IssueService
             ProjectId = r.GetNullableString("project_id"),
             ColumnId = r.GetNullableString("column_id"),
             Position = r.GetInt32(r.GetOrdinal("position")),
+            Metadata = r.GetNullableString("metadata") ?? "{}",
         };
     }
 

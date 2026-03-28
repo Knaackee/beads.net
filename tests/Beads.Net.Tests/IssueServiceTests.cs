@@ -73,6 +73,36 @@ public sealed class IssueServiceTests : IDisposable
     }
 
     [Fact]
+    public void Create_WithMetadata_Persists()
+    {
+        var issue = _client.Issues.Create("Metadata issue", new CreateIssueOptions
+        {
+            Metadata = "{\"origin\":\"cli\"}",
+        });
+
+        Assert.Equal("{\"origin\":\"cli\"}", issue.Metadata);
+
+        var loaded = _client.Issues.GetOrThrow(issue.Id);
+        Assert.Equal("{\"origin\":\"cli\"}", loaded.Metadata);
+    }
+
+    [Fact]
+    public void Update_Metadata_ChangesField()
+    {
+        var issue = _client.Issues.Create("Metadata update");
+
+        var updated = _client.Issues.Update(issue.Id, new UpdateIssueOptions
+        {
+            Metadata = "{\"sprint\":\"S1\"}",
+        });
+
+        Assert.Equal("{\"sprint\":\"S1\"}", updated.Metadata);
+
+        var loaded = _client.Issues.GetOrThrow(issue.Id);
+        Assert.Equal("{\"sprint\":\"S1\"}", loaded.Metadata);
+    }
+
+    [Fact]
     public void Create_WithLabels()
     {
         var issue = _client.Issues.Create("Labeled", new CreateIssueOptions

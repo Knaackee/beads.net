@@ -315,13 +315,13 @@ public sealed class SyncService
                 status, priority, issue_type, assignee, owner, estimated_minutes,
                 created_at, created_by, updated_at, closed_at, close_reason,
                 due_at, defer_until, external_ref, source_repo,
-                ephemeral, pinned, is_template, project_id, position
+                ephemeral, pinned, is_template, project_id, position, metadata
             ) VALUES (
                 @id, @hash, @title, @desc, @design, @ac, @notes,
                 @status, @pri, @type, @assignee, @owner, @est,
                 @cat, @cby, @uat, @closedat, @closereason,
                 @due, @defer, @eref, @repo,
-                @eph, @pin, @tmpl, @proj, @pos
+                @eph, @pin, @tmpl, @proj, @pos, @meta
             )
             """, cmd =>
         {
@@ -352,6 +352,7 @@ public sealed class SyncService
             cmd.Parameters.AddWithValue("@tmpl", issue.IsTemplate ? 1 : 0);
             cmd.Parameters.AddWithValue("@proj", (object?)issue.ProjectId ?? DBNull.Value);
             cmd.Parameters.AddWithValue("@pos", issue.Position);
+            cmd.Parameters.AddWithValue("@meta", issue.Metadata ?? "{}");
         });
 
         // Import labels
@@ -398,7 +399,7 @@ public sealed class SyncService
                 assignee = @assignee, owner = @owner, estimated_minutes = @est,
                 updated_at = @uat, closed_at = @closedat, close_reason = @closereason,
                 due_at = @due, defer_until = @defer, external_ref = @eref,
-                ephemeral = @eph, pinned = @pin, is_template = @tmpl
+                ephemeral = @eph, pinned = @pin, is_template = @tmpl, metadata = @meta
             WHERE id = @id
             """, cmd =>
         {
@@ -424,6 +425,7 @@ public sealed class SyncService
             cmd.Parameters.AddWithValue("@eph", issue.Ephemeral ? 1 : 0);
             cmd.Parameters.AddWithValue("@pin", issue.Pinned ? 1 : 0);
             cmd.Parameters.AddWithValue("@tmpl", issue.IsTemplate ? 1 : 0);
+            cmd.Parameters.AddWithValue("@meta", issue.Metadata ?? "{}");
         });
     }
 }
