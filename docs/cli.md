@@ -8,6 +8,21 @@ A terminal-based issue tracker powered by Beads.Net. Fast, local-first, works of
 dotnet tool install -g Beads.Cli
 ```
 
+Or install the latest standalone release binary:
+
+```powershell
+# Windows (PowerShell)
+Invoke-WebRequest -Uri https://github.com/Knaackee/beads.net/releases/latest/download/beads-win-x64.exe -OutFile beads.exe; Move-Item beads.exe "$env:LOCALAPPDATA\Microsoft\WindowsApps\beads.exe" -Force
+```
+
+```bash
+# Linux
+curl -Lo beads https://github.com/Knaackee/beads.net/releases/latest/download/beads-linux-x64 && chmod +x beads && sudo mv beads /usr/local/bin/
+
+# macOS (Apple Silicon)
+curl -Lo beads https://github.com/Knaackee/beads.net/releases/latest/download/beads-osx-arm64 && chmod +x beads && sudo mv beads /usr/local/bin/
+```
+
 ## Global Options
 
 | Option | Description | Default |

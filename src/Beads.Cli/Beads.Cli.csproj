@@ -10,8 +10,8 @@
     <Description>Local-first issue tracker CLI — .NET port of beads_rust</Description>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageProjectUrl>https://github.com/user/beads.net</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/user/beads.net</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/Knaackee/beads.net</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/Knaackee/beads.net</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>issue-tracker;sqlite;cli;local-first;dotnet-tool</PackageTags>
     <IncludeSymbols>true</IncludeSymbols>

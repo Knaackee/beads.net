@@ -11,6 +11,42 @@ Beads.Net is a complete port of the [beads_rust](https://github.com/example/bead
 | [Beads.Net](docs/library.md) | Core library — embed issue tracking into any .NET app |
 | [Beads.Cli](docs/cli.md) | CLI tool — `beads` command for terminal-based issue tracking |
 
+## 60-Second Quickstart
+
+### Install
+
+**dotnet tool (cross-platform)**
+
+```bash
+dotnet tool install -g Beads.Cli
+```
+
+**Windows (PowerShell, standalone binary)**
+
+```powershell
+Invoke-WebRequest -Uri https://github.com/Knaackee/beads.net/releases/latest/download/beads-win-x64.exe -OutFile beads.exe; Move-Item beads.exe "$env:LOCALAPPDATA\Microsoft\WindowsApps\beads.exe" -Force
+```
+
+**Linux (standalone binary)**
+
+```bash
+curl -Lo beads https://github.com/Knaackee/beads.net/releases/latest/download/beads-linux-x64 && chmod +x beads && sudo mv beads /usr/local/bin/
+```
+
+**macOS (Apple Silicon, standalone binary)**
+
+```bash
+curl -Lo beads https://github.com/Knaackee/beads.net/releases/latest/download/beads-osx-arm64 && chmod +x beads && sudo mv beads /usr/local/bin/
+```
+
+### Initialize
+
+```bash
+beads init
+beads create "Implement authentication" --type task --priority 0
+beads list
+```
+
 ## Quick Start
 
 ### CLI

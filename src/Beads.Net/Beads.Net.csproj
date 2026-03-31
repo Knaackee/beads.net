@@ -8,8 +8,8 @@
     <PackageTags>issue-tracker;sqlite;cli;git;local-first</PackageTags>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageProjectUrl>https://github.com/user/beads.net</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/user/beads.net</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/Knaackee/beads.net</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/Knaackee/beads.net</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
